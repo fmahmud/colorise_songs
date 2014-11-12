@@ -20,10 +20,9 @@ class Song_Color:
                 response = urllib2.urlopen(url).read()
 
         data = json.loads(response.decode('utf-8'))
-        # print data['response']['track']['audio_summary']
+
         try :
             value = data['response']['track']['audio_summary']
-            # print value[:-10]
             self.aValue = value
             self.speech = value['speechiness']
             self.tempo = value['tempo']
@@ -63,7 +62,7 @@ def hex_to_rgb(hex_value):
     return tuple(int(hex_value[i:i + len(hex_value) // 3], 16)for i in range(0, len(hex_value), len(hex_value)//3))
 
 urlTarget = "https://api.spotify.com/v1/users/{{USER}}/playlists/{{PLAYLIST_ID}}/tracks"
-urlHeader = "Authorization: Bearer BQAe0Ae8S_RXxi8x13qhfc2K0cGVx0pAp4rJMMBHB8bVCKh6VdQ-LFfcZeRxhzEMZdupxnHBvdswrC4PZXYc7udnTwp7rpBkCXsv0Vihz8-WSRPMaAKwEK478K12NLbIht8Z5FJxxDVWaRoHjE3eiuvcoQuAhtS6Obdp_oB3I0wAJA6FLYsV6lopIJnPsQRKxxUiJIF6J_DDt4iAYkI31gcdEcRhMezD6C8Nh-ZHDSJPxQNr74ryuFQErTnzfMc0eJmN"
+urlHeader = "Authorization: Bearer BQCgX8EclQxM7ABHwJl_-sYRoct6EdDKxevbs9KaqjcBlGP5e6hZ8X5ERCiyTees61x_h2GYAbnqsRkv39rIraf_5c1G3odKG3KuXKjCuAzLxafV8re6LXnCXkuTtE5bk5k-BPQz_3c82VJIdI38OrCgyT6HKwP6Nx5tKOs4ut4dgjlilYJQy9ZajNqUXI6hRjjk_1sptgUadN9wdSvQov3tsimuAijPA5QNMkavCxOrdFCdzMKQ28NlWg7WdZyoEFwD"
 
 def getTrackIDsFromPlaylist(playlistID, userID) :
     curlCommand = ['curl', '-X', "GET", urlTarget.replace("{{USER}}", userID)             \
@@ -78,10 +77,12 @@ def getTrackIDsFromPlaylist(playlistID, userID) :
     trackList = json.loads(response)
     # print response
     toRet = []
-    items = trackList["items"]
-    for i in items :
-        toRet.append([i["track"]["id"], i["track"]["name"], i["track"]["artists"][0]["name"]])
+    if trackList.has_key("items") :
+        items = trackList["items"]
+        for i in items :
+            toRet.append([i["track"]["id"], i["track"]["name"], i["track"]["artists"][0]["name"]])
     return toRet
+
 
 
 count = 0
@@ -96,12 +97,11 @@ def dealWithTrackIDList(trackList) :
 
 #"",
 SongColorList = []
-playlistIDs = [                                                                            \
+playlistIDs = [                                                                           \
     "12121113853||6Ba7ixQdl3uTDqC1X8uxbr"  , "spotify||6LBZwjKY0VZLoe79qeGcCF",           \
     "spotify||5FJXhjdILmRA2z5bvz4nzf"      , "spotify||4hOKQuZbraPDIfaGbM3lKI",           \
     "spotify||3ZgmfR6lsnCwdffZUan8EA"      , "spotify||3qu74M0PqlkSV76f98aqTd",           \
-    "ljfullofgrace||2WzN4LYiBENoB7bKD3YbFq", 
-    "spotify||63dDpdoVHvx5RkK87g4LKk" ,           \
+    "ljfullofgrace||2WzN4LYiBENoB7bKD3YbFq", "spotify||63dDpdoVHvx5RkK87g4LKk" ,          \
     "spotify||0QvUYQKpZmrah6QRrcUEWK"      , "12121113853||77glGmUcFaU1mhYudqkPup"        \
     "spotify||7xADHS7Ryc6oMdqBVhNVQ9"
 ]
@@ -131,6 +131,6 @@ for s in playlistIDs :
         scAsText = getSCAsText(i)
         if scAsText != "" :
             f.write(scAsText.encode("ascii", "ignore"))
-            print scAsText
+            print scAsText + "\n"
 
 print "Scraped " + str(count) + " songs"
