@@ -20,8 +20,11 @@ class Song_Color:
                 response = urllib2.urlopen(url).read()
 
         data = json.loads(response.decode('utf-8'))
+        # print data['response']['track']['audio_summary']
         try :
             value = data['response']['track']['audio_summary']
+            # print value[:-10]
+            self.aValue = value
             self.speech = value['speechiness']
             self.tempo = value['tempo']
             self.energy = value['energy']
@@ -31,6 +34,7 @@ class Song_Color:
             self.valence = value['valence']
             self.loudness = value['loudness']
         except :
+            self.aValue = "{}"
             self.speech     = 0
             self.tempo      = 0
             self.energy     = 0
@@ -59,7 +63,7 @@ def hex_to_rgb(hex_value):
     return tuple(int(hex_value[i:i + len(hex_value) // 3], 16)for i in range(0, len(hex_value), len(hex_value)//3))
 
 urlTarget = "https://api.spotify.com/v1/users/{{USER}}/playlists/{{PLAYLIST_ID}}/tracks"
-urlHeader = "Authorization: Bearer BQDbcTHF7ojmudJ92g6NAk6xwxRHrVz2wQ8D_WYpZ-s9XeK8YtPWXhVBqotC1n2ZR9nXleg7LzVIhLey5P6PG08bt7ZnWtEm9DVlvfJtluhxUawL4JvKRbPA9GLY-najKWv4CM9mBA0CeANTAzvABGjX7FpK8scGVUo0RVm7tk3KkyhgvHO81_yV9AGRuvsyOPB6GZ99UhxqoHcYYJ8vnuJL8_DEZsZBg4cyx8aJLXs0Lm7ZNnp7qcjAnWuA4xCyVR67"
+urlHeader = "Authorization: Bearer BQAe0Ae8S_RXxi8x13qhfc2K0cGVx0pAp4rJMMBHB8bVCKh6VdQ-LFfcZeRxhzEMZdupxnHBvdswrC4PZXYc7udnTwp7rpBkCXsv0Vihz8-WSRPMaAKwEK478K12NLbIht8Z5FJxxDVWaRoHjE3eiuvcoQuAhtS6Obdp_oB3I0wAJA6FLYsV6lopIJnPsQRKxxUiJIF6J_DDt4iAYkI31gcdEcRhMezD6C8Nh-ZHDSJPxQNr74ryuFQErTnzfMc0eJmN"
 
 def getTrackIDsFromPlaylist(playlistID, userID) :
     curlCommand = ['curl', '-X', "GET", urlTarget.replace("{{USER}}", userID)             \
@@ -93,21 +97,26 @@ def dealWithTrackIDList(trackList) :
 #"",
 SongColorList = []
 playlistIDs = [                                                                            \
-    # "12121113853||6Ba7ixQdl3uTDqC1X8uxbr"  , "spotify||6LBZwjKY0VZLoe79qeGcCF",           \
-    # "spotify||5FJXhjdILmRA2z5bvz4nzf"      , "spotify||4hOKQuZbraPDIfaGbM3lKI",           \
-    # "spotify||3ZgmfR6lsnCwdffZUan8EA"      , "spotify||3qu74M0PqlkSV76f98aqTd",           \
-    # "ljfullofgrace||2WzN4LYiBENoB7bKD3YbFq", 
+    "12121113853||6Ba7ixQdl3uTDqC1X8uxbr"  , "spotify||6LBZwjKY0VZLoe79qeGcCF",           \
+    "spotify||5FJXhjdILmRA2z5bvz4nzf"      , "spotify||4hOKQuZbraPDIfaGbM3lKI",           \
+    "spotify||3ZgmfR6lsnCwdffZUan8EA"      , "spotify||3qu74M0PqlkSV76f98aqTd",           \
+    "ljfullofgrace||2WzN4LYiBENoB7bKD3YbFq", 
     "spotify||63dDpdoVHvx5RkK87g4LKk" ,           \
     "spotify||0QvUYQKpZmrah6QRrcUEWK"      , "12121113853||77glGmUcFaU1mhYudqkPup"        \
     "spotify||7xADHS7Ryc6oMdqBVhNVQ9"
 ]
 
 def getSCAsText(sc) :
-    try : 
-        toRet = "name:"+sc.name+"||artist:"+sc.artist+"||speech:"+str(sc.speech)+"||tempo:"+str(sc.tempo)+"||energy:"+str(sc.energy)+"||liveness:"+str(sc.liveness)+"||acoustic:"+str(sc.acoustic)+"||dance:"+str(sc.dance)+"||valence:"+str(sc.valence)+"||loudness:"+str(sc.loudness)+"\n"
-    except :
-        return ""
-    return toRet
+    return str(sc.aValue)
+    # try : 
+
+    #     # toRet = {}
+    #     # toRet["name"] = sc.name
+    #     # toRet = "name:"+sc.name+"||artist:"+sc.artist+"||speech:"+str(sc.speech)+"||tempo:"+str(sc.tempo)+"||energy:"+str(sc.energy)+"||liveness:"+str(sc.liveness)+"||acoustic:"+str(sc.acoustic)+"||dance:"+str(sc.dance)+"||valence:"+str(sc.valence)+"||loudness:"+str(sc.loudness)+"\n"
+
+    # except :
+    #     return ""
+    # return toRet
 
 f = open("results.txt", "a")
 
@@ -121,7 +130,7 @@ for s in playlistIDs :
     for i in idList :
         scAsText = getSCAsText(i)
         if scAsText != "" :
-            toWrite = toWrite + scAsText
-    f.write(toWrite.encode("ascii", "ignore"))
+            f.write(scAsText.encode("ascii", "ignore"))
+            print scAsText
 
 print "Scraped " + str(count) + " songs"
